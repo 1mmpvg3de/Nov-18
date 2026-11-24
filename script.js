@@ -1,5 +1,5 @@
 const TARGET_DISTANCE = 1000;
-const MAX_SPEED = 80;
+const MAX_SPEED = 320;
 const STOP_SPEED = 0.12;
 const COAST_DRAG = 0.025;
 const NEUTRAL_NOTCH = 4;
