@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101c2c">
+    <title>終着駅まで — 運転士シミュレーター</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="topbar">
+        <a class="wordmark" href="#" aria-label="終着駅まで">
+          <span class="wordmark-icon" aria-hidden="true">▰</span>
+          <span>終着駅まで</span>
+        </a>
+        <div class="line-name"><span class="line-dot"></span>青葉線 <span class="line-divider">/</span> 上り</div>
+        <div class="service-badge"><span class="live-dot"></span>運転シミュレーション</div>
+      </header>
+
+      <section class="intro" aria-labelledby="game-title">
+        <div>
+          <p class="eyebrow">DRIVER'S CAB · 01</p>
+          <h1 id="game-title">駅にぴたりと、停車しよう。</h1>
+          <p class="intro-copy">速度を調整して停車位置へ。走行音の音程は速度に連動します。</p>
+        </div>
+        <div class="station-card">
+          <span class="station-card-label">つぎは</span>
+          <span class="station-card-name">青葉台</span>
+          <span class="station-card-kana">AOBADAI</span>
+        </div>
+      </section>
+
+      <section class="scene" aria-label="横から見た走行中の電車">
+        <svg class="side-view" viewBox="0 0 1000 300" preserveAspectRatio="none" role="img" aria-label="線路上を走る青と緑の電車を横から見たイラスト">
+          <title>横から見た走行中の電車</title>
+          <defs>
+            <linearGradient id="side-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#83b9c9"></stop>
+              <stop offset="1" stop-color="#d8dfc9"></stop>
+            </linearGradient>
+            <pattern id="cloud-pattern" width="620" height="180" patternUnits="userSpaceOnUse">
+              <path d="M36 58c0-11 9-19 20-19 5-15 28-17 36-3 15-2 22 17 10 26H47c-6 0-11-2-11-4zm302 18c0-9 7-16 17-16 4-13 24-15 31-2 13-2 18 14 8 21h-47c-5 0-9-1-9-3z" fill="#eff3e5" opacity=".58"></path>
+            </pattern>
+            <pattern id="hill-pattern" width="900" height="230" patternUnits="userSpaceOnUse">
+              <path d="M0 164c80-34 140-26 220 2s140 26 230-16 170-22 250 13 130 32 200 1v66H0z" fill="#779477"></path>
+              <path d="M0 180c94-52 162-33 233-11s147 34 221-1 154-26 235 1 140 13 211 11v40H0z" fill="#527460"></path>
+            </pattern>
+            <pattern id="city-pattern" width="880" height="220" patternUnits="userSpaceOnUse">
+              <g fill="#748c83">
+                <path d="M0 79h65v128H0zm84 30h77v98H84zm105-45h68v143h-68zm86 24h91v119h-91zm119-31h78v150h-78zm103 53h58v97h-58zm82-30h94v127h-94zm120 21h83v106h-83zm111-42h68v148h-68z"></path>
+              </g>
+              <g fill="#d2d7bd" opacity=".65">
+                <path d="M12 92h12v17H12zm24 0h12v17H36zm-24 31h12v17H12zm72 1h14v18H84zm27 0h14v18h-14zm0 30h14v18h-14zm93-78h13v17h-13zm26 0h13v17h-13zm-26 31h13v17h-13zm59 0h13v17h-13zm31 17h15v18h-15zm28 0h15v18h-15zm119-32h14v18h-14zm28 0h14v18h-14zm-28 33h14v18h-14zm104 24h12v16h-12zm25 0h12v16h-12zm83-36h15v18h-15zm29 0h15v18h-15zm-29 33h15v18h-15zm119-7h14v18h-14zm28 0h14v18h-14zm84-41h13v18h-13zm27 0h13v18h-13z"></path>
+              </g>
+            </pattern>
+            <pattern id="tree-pattern" width="420" height="230" patternUnits="userSpaceOnUse">
+              <g fill="#315747">
+                <path d="M43 198l27-60 27 60zm13-37 14-50 14 50zm103 37 31-75 31 75zm16-47 15-49 15 49zm137 47 28-65 28 65zm13-42 15-48 15 48z"></path>
+              </g>
+              <g fill="#9cae84">
+                <path d="M68 198h4v-44h-4zm126 0h5v-52h-5zm142 0h4v-45h-4z"></path>
+              </g>
+            </pattern>
+            <pattern id="sleeper-pattern" width="110" height="48" patternUnits="userSpaceOnUse">
+              <rect x="14" y="0" width="26" height="48" rx="3" fill="#17231f"></rect>
+              <rect x="19" y="1" width="3" height="46" fill="#45564b" opacity=".7"></rect>
+            </pattern>
+          </defs>
+          <rect width="1000" height="300" fill="url(#side-sky)"></rect>
+          <circle cx="825" cy="49" r="22" fill="#fff0c8" opacity=".88"></circle>
+          <rect width="1000" height="178" fill="url(#cloud-pattern)"></rect>
+          <rect y="73" width="1000" height="149" fill="url(#hill-pattern)"></rect>
+          <rect y="121" width="1000" height="101" fill="url(#city-pattern)"></rect>
+          <rect y="190" width="1000" height="36" fill="#607b58"></rect>
+          <rect y="196" width="1000" height="10" fill="url(#tree-pattern)"></rect>
+          <rect y="211" width="1000" height="28" fill="#aeb6a6"></rect>
+          <rect y="211" width="1000" height="3" fill="#eee2ab"></rect>
+          <rect y="237" width="1000" height="63" fill="#303b35"></rect>
+          <rect y="242" width="1000" height="58" fill="url(#sleeper-pattern)"></rect>
+          <path d="M0 243h1000" stroke="#1b2625" stroke-width="12"></path>
+          <path d="M0 241h1000" stroke="#d4d7c6" stroke-width="5"></path>
+          <path d="M0 239h1000" stroke="#f1ecd4" stroke-width="1.5" opacity=".8"></path>
+          <g class="train">
+            <g fill="#182329">
+              <circle cx="337" cy="230" r="15"></circle>
+              <circle cx="380" cy="230" r="15"></circle>
+              <circle cx="631" cy="230" r="15"></circle>
+              <circle cx="674" cy="230" r="15"></circle>
+            </g>
+            <g fill="#66706c">
+              <circle cx="337" cy="230" r="6"></circle>
+              <circle cx="380" cy="230" r="6"></circle>
+              <circle cx="631" cy="230" r="6"></circle>
+              <circle cx="674" cy="230" r="6"></circle>
+            </g>
+            <path d="M306 205h400l27 17H285z" fill="#33434a"></path>
+            <path d="M242 164q0-22 26-28l61-10h365q28 0 47 23l19 27v37H242z" fill="#e5ebe2" stroke="#bac8c1" stroke-width="2"></path>
+            <path d="M243 187h517v14H243z" fill="#267457"></path>
+            <path d="M252 203h496" stroke="#f2d783" stroke-width="3"></path>
+            <path d="M269 146h42v32h-42zm57 0h43v32h-43zm59 0h43v32h-43zm59 0h43v32h-43zm59 0h43v32h-43z" fill="#294452" stroke="#a9c2c2" stroke-width="3"></path>
+            <path d="M574 139h48v48h-48z" fill="#d4ddd5" stroke="#bac8c1" stroke-width="2"></path>
+            <path d="M582 145h32v24h-32z" fill="#294452"></path>
+            <path d="M627 136v51m49-61v61" stroke="#aebbb5" stroke-width="2"></path>
+            <path d="M688 132q28 0 47 23l19 21h-67z" fill="#dbe4dc"></path>
+            <path d="M699 140h29l17 25h-46z" fill="#294452" stroke="#a9c2c2" stroke-width="2"></path>
+            <path d="M237 164h10v38h-10m522-27h13v15h-13" fill="#dce5dc"></path>
+            <circle cx="750" cy="180" r="4" fill="#ffe5a0"></circle>
+            <text x="260" y="183" fill="#29433d" font-family="sans-serif" font-size="9" font-weight="700" letter-spacing="1">AOBADAI LINE</text>
+            <path d="M430 126v-11h48l13 11m-51-11-10 11m48-11 10 11" fill="none" stroke="#465b59" stroke-width="3"></path>
+          </g>
+        </svg>
+        <div class="scene-vignette"></div>
+        <div class="scene-caption"><span class="caption-icon">◉</span> SiC素子VVVF搭載車 <span class="caption-divider">·</span> 青葉台方面</div>
+        <div class="distance-pill"><span class="distance-dot"></span><span id="scene-distance">停止位置まで 1,000 m</span></div>
+      </section>
+
+      <section class="dashboard" aria-label="運転情報">
+        <div class="speed-panel">
+          <div class="panel-label">速度 <span class="panel-unit">km/h</span></div>
+          <div class="speed-readout"><span id="speed">0</span><span class="speed-decimal" id="speed-decimal">.0</span></div>
+          <div class="speed-track" aria-hidden="true"><span id="speed-fill"></span></div>
+          <div class="speed-scale"><span>0</span><span>40</span><span>80</span></div>
+        </div>
+
+        <div class="distance-panel">
+          <div class="panel-label">停止位置まで</div>
+          <div class="distance-readout"><span id="remaining">1,000</span><span class="unit">m</span></div>
+          <div class="route-track" aria-label="駅までの進行状況">
+            <span class="route-start">START</span>
+            <span class="route-progress"><span id="route-progress"></span></span>
+            <span class="route-station"><span class="route-station-dot"></span>青葉台</span>
+            <span class="route-train" id="route-train" aria-hidden="true">◆</span>
+          </div>
+          <div class="route-note"><span class="route-status-dot"></span><span id="status">出発の準備ができています</span></div>
+        </div>
+
+        <div class="score-panel">
+          <div class="panel-label">停車スコア</div>
+          <div class="score-readout"><span id="score">—</span><span class="score-unit">pt</span></div>
+          <div class="score-caption" id="score-caption">駅に停車すると採点</div>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="運転操作">
+        <div class="controls-heading-row">
+          <div class="controls-copy">
+            <span class="controls-heading">運転ハンドル</span>
+            <span class="controls-subtitle">矢印キーまたは段階ボタンで操作</span>
+          </div>
+          <div class="handle-position" aria-live="polite">
+            <strong id="handle-notch">N</strong>
+            <span id="handle-description">中立</span>
+          </div>
+          <button class="sound-button" id="sound-toggle" type="button" aria-pressed="true">♪ 音声 ON</button>
+          <button class="reset-button" id="reset" type="button" aria-label="運転をやり直す">
+            <span aria-hidden="true">↻</span> やり直す
+          </button>
+        </div>
+        <div class="notch-zones" aria-hidden="true">
+          <span class="brake-zone">制動</span>
+          <span class="neutral-zone">中立</span>
+          <span class="power-zone">力行</span>
+        </div>
+        <div class="notch-track" role="group" aria-label="運転ハンドルの段階">
+          <button class="notch-button emergency-notch" data-notch="0" type="button" aria-label="非常ブレーキ EB" aria-pressed="false">EB</button>
+          <button class="notch-button brake-notch" data-notch="1" type="button" aria-label="制動3" aria-pressed="false">3</button>
+          <button class="notch-button brake-notch" data-notch="2" type="button" aria-label="制動2" aria-pressed="false">2</button>
+          <button class="notch-button brake-notch" data-notch="3" type="button" aria-label="制動1" aria-pressed="false">1</button>
+          <button class="notch-button neutral-notch is-selected" data-notch="4" type="button" aria-label="中立 N" aria-pressed="true">N</button>
+          <button class="notch-button power-notch" data-notch="5" type="button" aria-label="力行1" aria-pressed="false">1</button>
+          <button class="notch-button power-notch" data-notch="6" type="button" aria-label="力行2" aria-pressed="false">2</button>
+          <button class="notch-button power-notch" data-notch="7" type="button" aria-label="力行3" aria-pressed="false">3</button>
+        </div>
+        <div class="handle-hint"><span>↓ 制動</span><span>上矢印で力行側へ <kbd>↑</kbd> ・ 下矢印で制動側へ <kbd>↓</kbd></span></div>
+      </section>
+
+      <footer class="footer">
+        <span><span class="footer-signal"></span> 信号確認、出発進行。</span>
+        <span>停止位置との距離が近いほど高得点 <span class="footer-star">✳</span></span>
+      </footer>
+      <div class="sr-only" id="announcement" aria-live="polite"></div>
+    </main>
+  </body>
+</html>
