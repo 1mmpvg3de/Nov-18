@@ -19,6 +19,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   min-width: 320px;
   min-height: 100vh;
@@ -38,6 +42,89 @@ button {
 .game-shell {
   width: min(100%, 980px);
   margin: 0 auto;
+}
+
+.mode-select {
+  display: grid;
+  min-height: min(700px, calc(100vh - 76px));
+  align-content: center;
+  gap: 12px;
+  padding: 28px 0;
+}
+
+.mode-wordmark {
+  margin-bottom: 36px;
+}
+
+.mode-select .eyebrow {
+  margin-bottom: 0;
+}
+
+.mode-intro {
+  margin: -4px 0 15px;
+  color: #9eacbd;
+  font-size: 13px;
+}
+
+.mode-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.mode-card {
+  display: grid;
+  min-height: 184px;
+  align-content: start;
+  gap: 11px;
+  padding: 19px;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 12px;
+  background: linear-gradient(150deg, #1c2b3e, #172436);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.mode-card:hover,
+.mode-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgb(167 237 189 / 55%);
+  background: linear-gradient(150deg, #24394b, #1b2d3e);
+}
+
+.mode-card:focus-visible,
+.mode-switch:focus-visible {
+  outline: 2px solid #dce8f4;
+  outline-offset: 3px;
+}
+
+.mode-card-number {
+  color: var(--green);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.mode-card-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.mode-card-description {
+  min-height: 2.8em;
+  color: #a4b1c0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.mode-card-spec {
+  align-self: end;
+  color: #f0d39a;
+  font-family: "DM Mono", "Noto Sans JP", monospace;
+  font-size: 10px;
 }
 
 .topbar,
@@ -61,6 +148,21 @@ button {
   gap: 24px;
   color: #c5ced8;
   font-size: 12px;
+}
+
+.mode-switch {
+  padding: 6px 9px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 7px;
+  background: transparent;
+  color: #aab6c5;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.mode-switch:hover {
+  background: rgb(255 255 255 / 5%);
+  color: white;
 }
 
 .wordmark {
@@ -707,6 +809,28 @@ kbd {
     gap: 10px;
   }
 
+  .mode-select {
+    min-height: calc(100vh - 40px);
+  }
+
+  .mode-wordmark {
+    margin-bottom: 22px;
+  }
+
+  .mode-options {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-card {
+    min-height: 0;
+    gap: 7px;
+    padding: 14px 16px;
+  }
+
+  .mode-card-description {
+    min-height: 0;
+  }
+
   .line-name {
     margin-left: 2px;
   }
@@ -769,6 +893,10 @@ kbd {
     padding-inline: 10px;
   }
 
+  .topbar {
+    gap: 6px;
+  }
+
   .wordmark {
     font-size: 12px;
   }
@@ -779,6 +907,12 @@ kbd {
 
   .service-badge {
     font-size: 0;
+    padding: 5px;
+  }
+
+  .mode-switch {
+    padding: 4px 5px;
+    font-size: 8px;
   }
 
   .service-badge .live-dot {

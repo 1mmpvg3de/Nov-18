@@ -10,20 +10,52 @@
   </head>
   <body>
     <main class="game-shell">
+      <section class="mode-select" id="mode-select" aria-labelledby="mode-title">
+        <a class="wordmark mode-wordmark" href="#" aria-label="終着駅まで">
+          <span class="wordmark-icon" aria-hidden="true">▰</span>
+          <span>終着駅まで</span>
+        </a>
+        <p class="eyebrow">DRIVER'S CAB · MODE SELECT</p>
+        <h1 id="mode-title">走行モードを選んでください。</h1>
+        <p class="mode-intro">運転の楽しみ方に合わせて、走行モードを選択できます。</p>
+        <div class="mode-options" role="group" aria-label="走行モード">
+          <button class="mode-card" type="button" data-mode="free">
+            <span class="mode-card-number">01 · FREE</span>
+            <span class="mode-card-title">フリー走行</span>
+            <span class="mode-card-description">停車位置なし。自由に運転できます。</span>
+            <span class="mode-card-spec">最高速度 320 km/h</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="normal">
+            <span class="mode-card-number">02 · NORMAL</span>
+            <span class="mode-card-title">通常走行</span>
+            <span class="mode-card-description">1,000 m先の青葉台に停車しよう。</span>
+            <span class="mode-card-spec">最高速度 130 km/h</span>
+          </button>
+          <button class="mode-card" type="button" data-mode="high">
+            <span class="mode-card-number">03 · EXPRESS</span>
+            <span class="mode-card-title">高速走行</span>
+            <span class="mode-card-description">高速運転から青葉台への停車に挑戦。</span>
+            <span class="mode-card-spec">最高速度 320 km/h</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="game-screen" hidden>
       <header class="topbar">
         <a class="wordmark" href="#" aria-label="終着駅まで">
           <span class="wordmark-icon" aria-hidden="true">▰</span>
           <span>終着駅まで</span>
         </a>
         <div class="line-name"><span class="line-dot"></span>青葉線 <span class="line-divider">/</span> 上り</div>
-        <div class="service-badge"><span class="live-dot"></span>運転シミュレーション</div>
+        <div class="service-badge"><span class="live-dot"></span><span id="current-mode-label">運転シミュレーション</span></div>
+        <button class="mode-switch" id="change-mode" type="button">モード選択</button>
       </header>
 
       <section class="intro" aria-labelledby="game-title">
         <div>
           <p class="eyebrow">DRIVER'S CAB · 01</p>
           <h1 id="game-title">駅にぴたりと、停車しよう。</h1>
-          <p class="intro-copy">速度を調整して停車位置へ。走行音の音程は速度に連動します。</p>
+          <p class="intro-copy" id="game-intro">速度を調整して停車位置へ。走行音の音程は速度に連動します。</p>
         </div>
         <div class="station-card">
           <span class="station-card-label">つぎは</span>
@@ -121,11 +153,11 @@
           <div class="panel-label">速度 <span class="panel-unit">km/h</span></div>
           <div class="speed-readout"><span id="speed">0</span><span class="speed-decimal" id="speed-decimal">.0</span></div>
           <div class="speed-track" aria-hidden="true"><span id="speed-fill"></span></div>
-          <div class="speed-scale"><span>0</span><span>160</span><span>320</span></div>
+          <div class="speed-scale"><span>0</span><span id="speed-half">160</span><span id="speed-max">320</span></div>
         </div>
 
         <div class="distance-panel">
-          <div class="panel-label">停止位置まで</div>
+          <div class="panel-label" id="distance-label">停止位置まで</div>
           <div class="distance-readout"><span id="remaining">1,000</span><span class="unit">m</span></div>
           <div class="route-track" aria-label="駅までの進行状況">
             <span class="route-start">START</span>
@@ -178,9 +210,10 @@
 
       <footer class="footer">
         <span><span class="footer-signal"></span> 信号確認、出発進行。</span>
-        <span>停止位置との距離が近いほど高得点 <span class="footer-star">✳</span></span>
+        <span id="footer-note"><span id="footer-note-text">停止位置との距離が近いほど高得点</span> <span class="footer-star">✳</span></span>
       </footer>
       <div class="sr-only" id="announcement" aria-live="polite"></div>
+      </div>
     </main>
   </body>
 </html>

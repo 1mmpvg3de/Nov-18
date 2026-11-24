@@ -1,8 +1,13 @@
 const TARGET_DISTANCE = 1000;
-const MAX_SPEED = 320;
 const STOP_SPEED = 0.12;
 const COAST_DRAG = 0.025;
 const NEUTRAL_NOTCH = 4;
+
+const MODES = {
+  free: { label: "フリー走行", maxSpeed: 320, hasTarget: false },
+  normal: { label: "通常走行", maxSpeed: 130, hasTarget: true },
+  high: { label: "高速走行", maxSpeed: 320, hasTarget: true },
+};
 
 const NOTCHES = [
   { label: "EB", description: "非常ブレーキ", acceleration: -5.8 },
@@ -16,13 +21,28 @@ const NOTCHES = [
 ];
 
 const elements = {
+  modeSelect: document.querySelector("#mode-select"),
+  gameScreen: document.querySelector("#game-screen"),
+  modeButtons: [...document.querySelectorAll(".mode-card")],
+  changeMode: document.querySelector("#change-mode"),
+  modeLabel: document.querySelector("#current-mode-label"),
+  gameTitle: document.querySelector("#game-title"),
+  gameIntro: document.querySelector("#game-intro"),
   speed: document.querySelector("#speed"),
   speedDecimal: document.querySelector("#speed-decimal"),
   speedFill: document.querySelector("#speed-fill"),
+  speedHalf: document.querySelector("#speed-half"),
+  speedMax: document.querySelector("#speed-max"),
   remaining: document.querySelector("#remaining"),
+  distanceLabel: document.querySelector("#distance-label"),
   sceneDistance: document.querySelector("#scene-distance"),
+  routeTrack: document.querySelector(".route-track"),
+  stationCard: document.querySelector(".station-card"),
   routeProgress: document.querySelector("#route-progress"),
   routeTrain: document.querySelector("#route-train"),
+  scorePanel: document.querySelector(".score-panel"),
+  footerNote: document.querySelector("#footer-note"),
+  footerNoteText: document.querySelector("#footer-note-text"),
   status: document.querySelector("#status"),
   score: document.querySelector("#score"),
   scoreCaption: document.querySelector("#score-caption"),
@@ -48,6 +68,8 @@ const state = {
   mode: "ready",
   lastFrame: 0,
 };
+
+let currentMode = null;
 
 const audio = {
   enabled: true,
@@ -157,6 +179,8 @@ function updateHandle() {
 }
 
 function render() {
+  if (!currentMode) return;
+
   const remaining = TARGET_DISTANCE - state.position;
   const speedKmh = state.speed * 3.6;
   const progress = Math.min(1, Math.max(0, state.position / TARGET_DISTANCE));
@@ -164,11 +188,23 @@ function render() {
   const speedTenths = Math.round(speedKmh * 10);
   elements.speed.textContent = Math.floor(speedTenths / 10).toString();
   elements.speedDecimal.textContent = `.${speedTenths % 10}`;
-  elements.speedFill.style.width = `${(speedKmh / MAX_SPEED) * 100}%`;
-  elements.remaining.textContent = formatDistance(Math.max(0, remaining));
-  elements.sceneDistance.textContent = remaining >= 0
-    ? `停止位置まで ${formatDistance(remaining)} m`
-    : `停止位置を ${formatDistance(Math.abs(remaining))} m 通過`;
+  elements.speedFill.style.width = `${Math.min(100, (speedKmh / currentMode.maxSpeed) * 100)}%`;
+  elements.speedHalf.textContent = (currentMode.maxSpeed / 2).toString();
+  elements.speedMax.textContent = currentMode.maxSpeed.toString();
+  elements.distanceLabel.textContent = currentMode.hasTarget ? "停止位置まで" : "走行距離";
+  elements.remaining.textContent = formatDistance(currentMode.hasTarget ? Math.max(0, remaining) : state.position);
+  elements.sceneDistance.textContent = currentMode.hasTarget
+    ? remaining >= 0
+      ? `停止位置まで ${formatDistance(remaining)} m`
+      : `停止位置を ${formatDistance(Math.abs(remaining))} m 通過`
+    : "フリー走行";
+  elements.routeTrack.hidden = !currentMode.hasTarget;
+  elements.scorePanel.hidden = !currentMode.hasTarget;
+  elements.stationCard.hidden = !currentMode.hasTarget;
+  elements.footerNoteText.textContent = currentMode.hasTarget
+    ? "停止位置との距離が近いほど高得点"
+    : "停車位置を気にせず自由に運転";
+  elements.footerNote.querySelector(".footer-star").hidden = !currentMode.hasTarget;
   elements.routeProgress.style.width = `${progress * 100}%`;
   elements.routeTrain.style.left = `${progress * 100}%`;
 
@@ -187,7 +223,8 @@ function notchStatus() {
   if (state.notch > NEUTRAL_NOTCH) {
     return `${activeNotch.description}で加速中`;
   }
-  return state.position > 0 ? "中立 — 惰行中" : "中立 — 出発の準備ができています";
+  if (state.position > 0) return "中立 — 惰行中";
+  return currentMode.hasTarget ? "中立 — 出発の準備ができています" : "中立 — フリー走行の準備ができています";
 }
 
 function finishRun() {
@@ -225,7 +262,7 @@ function updateFrame(timestamp) {
 
   const acceleration = NOTCHES[state.notch].acceleration;
   if (acceleration > 0) {
-    state.speed = Math.min(MAX_SPEED / 3.6, state.speed + acceleration * delta);
+    state.speed = Math.min(currentMode.maxSpeed / 3.6, state.speed + acceleration * delta);
   } else if (acceleration < 0) {
     state.speed = Math.max(0, state.speed + acceleration * delta);
   } else {
@@ -235,7 +272,7 @@ function updateFrame(timestamp) {
   state.position += state.speed * delta;
   render();
 
-  if (state.notch < NEUTRAL_NOTCH && state.speed <= STOP_SPEED && state.position > 0.5) {
+  if (currentMode.hasTarget && state.notch < NEUTRAL_NOTCH && state.speed <= STOP_SPEED && state.position > 0.5) {
     finishRun();
     return;
   }
@@ -244,7 +281,7 @@ function updateFrame(timestamp) {
 }
 
 function selectNotch(index) {
-  if (state.mode === "finished") return;
+  if (!currentMode || state.mode === "finished") return;
   if (audio.enabled && !audio.context) createAudio();
 
   const nextNotch = Math.max(0, Math.min(NOTCHES.length - 1, index));
@@ -264,13 +301,14 @@ function selectNotch(index) {
   if (state.mode === "running") {
     setStatus(notchStatus());
   } else if (state.notch === NEUTRAL_NOTCH) {
-    setStatus("出発の準備ができています");
+    setStatus(currentMode.hasTarget ? "出発の準備ができています" : "フリー走行の準備ができています");
   } else {
     setStatus(`${NOTCHES[state.notch].description}待機中`);
   }
 }
 
 function resetRun() {
+  if (!currentMode) return;
   state.position = 0;
   state.speed = 0;
   state.notch = NEUTRAL_NOTCH;
@@ -279,16 +317,55 @@ function resetRun() {
   elements.score.textContent = "—";
   elements.scoreCaption.textContent = "駅に停車すると採点";
   updateHandle();
-  setStatus("出発の準備ができています");
+  setStatus(currentMode.hasTarget ? "出発の準備ができています" : "フリー走行の準備ができています");
   render();
+}
+
+function startMode(modeName) {
+  const mode = MODES[modeName];
+  if (!mode) return;
+
+  currentMode = mode;
+  state.position = 0;
+  state.speed = 0;
+  state.notch = NEUTRAL_NOTCH;
+  state.mode = "ready";
+  state.lastFrame = 0;
+  elements.gameTitle.textContent = mode.hasTarget ? "駅にぴたりと、停車しよう。" : "自由な運転を楽しもう。";
+  elements.modeLabel.textContent = mode.label;
+  elements.gameIntro.textContent = mode.hasTarget
+    ? `最高速度 ${mode.maxSpeed} km/h。速度を調整して青葉台の停車位置を目指してください。`
+    : `最高速度 ${mode.maxSpeed} km/h。停車位置を気にせず自由に運転できます。`;
+  elements.modeSelect.hidden = true;
+  elements.gameScreen.hidden = false;
+  elements.score.textContent = "—";
+  elements.scoreCaption.textContent = "駅に停車すると採点";
+  updateHandle();
+  setStatus(mode.hasTarget ? "出発の準備ができています" : "フリー走行の準備ができています");
+  render();
+}
+
+function showModeSelect() {
+  state.position = 0;
+  state.speed = 0;
+  state.notch = NEUTRAL_NOTCH;
+  state.mode = "ready";
+  updateHandle();
+  render();
+  elements.gameScreen.hidden = true;
+  elements.modeSelect.hidden = false;
 }
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+  if (elements.gameScreen.hidden) return;
   event.preventDefault();
   selectNotch(state.notch + (event.key === "ArrowUp" ? 1 : -1));
 });
 
+elements.modeButtons.forEach((button) => {
+  button.addEventListener("click", () => startMode(button.dataset.mode));
+});
 elements.notchButtons.forEach((button, index) => {
   button.addEventListener("click", () => selectNotch(index));
 });
@@ -299,7 +376,6 @@ elements.soundToggle.addEventListener("click", () => {
   updateAudio();
 });
 elements.reset.addEventListener("click", resetRun);
+elements.changeMode.addEventListener("click", showModeSelect);
 
 updateSoundToggle();
-updateHandle();
-render();
